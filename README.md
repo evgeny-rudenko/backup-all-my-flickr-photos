@@ -11,6 +11,7 @@ backup-all-my-flickr-photos
 1. Недоступны видео в оригинальном размере - заменил закачку на  формат MP4
 2. Добавил для изображений Medium размер. Без этого не скачиваются скриншоты, залитые в библиотеку
 
+Если устанавливать через PIP, то исправления будут недоступны
 
 This scripts simply downloads all your Flickr photos and videos into a
 directory.
