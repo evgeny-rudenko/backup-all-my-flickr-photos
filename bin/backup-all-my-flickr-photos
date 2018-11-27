@@ -23,12 +23,16 @@ _extensions = ["jpg", "mov", "mp4", "png", "flv", "gif"]
 if not hasattr(flickr_api.Walker, '__next__'):
     flickr_api.Walker.__next__ = flickr_api.Walker.next
 
+
 def main():
     parser = argparse.ArgumentParser(description="Download all your photos and videos on Flickr")
     parser.add_argument('destination_directory', metavar='d', type=six.text_type, help='Destination directory')
-    parser.add_argument('--delete', action='store_true', help="Delete files in destination directory that don't have corresponding items in the Flickr account")
+    parser.add_argument('--delete', action='store_true',
+                        help="Delete files in destination directory that don't have corresponding items in the Flickr account")
     args = parser.parse_args()
     download_dir = args.destination_directory
+
+
 
     if not os.path.exists(download_dir):
         sys.stderr.write("Destination directory %s does not exist\n" % (download_dir,))
@@ -51,6 +55,7 @@ def main():
 
     if args.delete:
         clean_stale_files(files_in_flickr, download_dir)
+
 
 def set_up_account_permissions():
     config_directory = get_config_directory()
@@ -76,12 +81,14 @@ def set_up_account_permissions():
         auth_handler.save(auth_filename)
         print("Authorization saved to %s" % (auth_filename,))
 
+
 def get_config_directory():
     home_directory = os.getenv("HOME", os.path.expanduser("~"))
     return os.path.join(
         os.getenv("XDG_CONFIG_HOME", os.path.join(home_directory, ".config")),
         "backup-all-my-flickr-photos",
     )
+
 
 def set_up_flickr_keys():
     config_directory = get_config_directory()
@@ -129,7 +136,7 @@ def set_up_flickr_keys():
                     continue
                 else:
                     raise
-                
+
         json_data = {
             'api_key': api_key,
             'api_secret': api_secret,
@@ -143,12 +150,13 @@ def set_up_flickr_keys():
 
 def download_item(photo, download_dir):
     if photo.title:
-        title = reduce( lambda s,char: s.replace(char,''), _forbidden_characters, photo.title)
+        title = reduce(lambda s, char: s.replace(char, ''), _forbidden_characters, photo.title)
         destname = "%s %s" % (title, photo.id)
     else:
-        destname = "%s" % (photo.id, )
+        destname = "%s" % (photo.id,)
 
-    file_exists = lambda: any([os.path.exists(os.path.join(download_dir, "%s.%s" % (destname, x))) for x in _extensions])
+    file_exists = lambda: any(
+        [os.path.exists(os.path.join(download_dir, "%s.%s" % (destname, x))) for x in _extensions])
 
     if not file_exists():
         try:
@@ -165,19 +173,25 @@ def download_item(photo, download_dir):
         if os.path.exists(os.path.join(download_dir, "%s.%s" % (destname, extension))):
             return os.path.join(download_dir, "%s.%s" % (destname, extension))
 
-    raise(Exception("Expected to find file %s.EXTENSION" % (destname,)))
+    raise (Exception("Expected to find file %s.EXTENSION" % (destname,)))
 
 
 def download_file(photo, filename):
+    print (photo)
+    print (filename)
+
     url = photo.getPhotoFile(preferred_size(photo))
+
+
     def report(count_of_block, block_size, total_size):
         # print(count_of_block, block_size, total_size)
-        percentage = (count_of_block * block_size * 100 ) / total_size
+        percentage = (count_of_block * block_size * 100) / total_size
         sys.stdout.write("\r%3d%% of %s" % (percentage, humanfriendly.format_size(total_size)))
         sys.stdout.flush()
         if percentage >= 100:
             sys.stdout.write("\n")
             sys.stdout.flush()
+
     _, headers = urllib.request.urlretrieve(url, filename, report)
     return url, headers
 
@@ -185,10 +199,13 @@ def download_file(photo, filename):
 def preferred_size(photo):
     sizes = photo.getSizes()
     if 'Video Original' in sizes:
-        return 'Video Original'
+        return 'Site MP4'
+        ##return 'Video Original'
     elif 'Original' in sizes:
         return 'Original'
-    raise(Exception("Could not find size 'Video Original' or 'Original' for photo %s" % (photo,)))
+    elif 'Medium' in sizes:
+        return 'Medium'
+    raise (Exception("Could not find size 'Video Original' or 'Original' for photo %s" % (photo,)))
 
 
 def guess_extension(url, headers):
@@ -204,7 +221,7 @@ def guess_extension(url, headers):
                 return extension
     # It's tempting to look at the Content-Type header here, but in the real
     # world, Flickr sets the wrong value for .mov files. So give up instead.
-    raise(Exception("Cannot guess extension for URL %s" % (url,)))
+    raise (Exception("Cannot guess extension for URL %s" % (url,)))
 
 
 def clean_stale_files(files_in_flickr, download_dir):
