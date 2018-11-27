@@ -6,8 +6,15 @@ backup-all-my-flickr-photos
 [![PyPI](https://img.shields.io/pypi/wheel/backup_all_my_flickr_photos.svg)](https://pypi.org/project/backup_all_my_flickr_photos/)
 [![PyPI](https://img.shields.io/pypi/pyversions/backup_all_my_flickr_photos.svg)](https://pypi.org/project/backup_all_my_flickr_photos/)
 
+2018.11.27
+От оригинального скрипта отличается исправленными ошибками.
+1. Недоступны видео в оригинальном размере - заменил закачку на  формат MP4
+2. Добавил для изображений Medium размер. Без этого не скачиваются скриншоты, залитые в библиотеку
+
+
 This scripts simply downloads all your Flickr photos and videos into a
 directory.
+
 
 Installation instructions:
 ==========================
